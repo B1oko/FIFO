@@ -2,15 +2,12 @@
 
 module FIFO_Testbench ();
 	
-	localparam T = 20;
-
 	parameter tam = 32;
 	parameter size = 8;
 
 	integer i;
 
-	logic [size-1:0] data_random;
-	logic var_a = $random;
+	rand bit [size-1:0] data_random;
 
 	logic READ, WRITE, CLEAR_N, RESET_N, CLOCK;
 	logic [size-1:0] DATA_IN;
@@ -32,7 +29,7 @@ module FIFO_Testbench ();
 			escribe(8);
 			lee();
 			#2
-			//assert(q==8) else $error("Error en FIFO");
+			assert(q==8) else $error("Error en FIFO");
 			reset();
 		end
 
@@ -47,11 +44,12 @@ module FIFO_Testbench ();
 	task escribe(reps);
 		begin
 			WRITE = 1'b1;
-			int random = $random();
 			for(i=0;i<reps;i=i+1)
 				begin
-					DATA_IN = random;
+					if(data_random.randomize())
+						$display ("Numero random: %0d", data_random);
 				end
+
 		end
 	endtask
 
