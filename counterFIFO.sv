@@ -1,9 +1,9 @@
-module counter (iCLK, iRST_n, iENABLE, iUP_DOWN, oCOUNT, oTC);
+module counterFIFO (iCLK, iRST_n, iENABLE, iUP_DOWN, oCOUNT, oTC);
 
-    // 1 -> arriba
-    // 0 -> abajo
-    
-	parameter fin_cuenta = 20;
+	// 1 -> arriba
+	// 0 -> abajo
+	
+	parameter fin_cuenta = 32;
 	parameter n = $clog2(fin_cuenta-1);
 	
 	input iCLK, iRST_n, iENABLE, iUP_DOWN;
@@ -48,4 +48,4 @@ module counter (iCLK, iRST_n, iENABLE, iUP_DOWN, oCOUNT, oTC);
 				end
 		end
 	
-endmodule
+endmodule 

@@ -1,4 +1,4 @@
-module ram_dp #(parameter mem_depth=32, parameter size=8)
+module ram_dp_FIFO #(parameter mem_depth=32, parameter size=8)
 (
 input [size-1:0] data_in,
 input wren,clock,rden,
