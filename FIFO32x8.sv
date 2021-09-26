@@ -5,28 +5,28 @@ module FIFO32x8 #(parameter tam=32, parameter size=8)(
 
 	output logic F_FULL_N, F_EMPTY_N,
 	output logic [$clog2(tam-1)-1:0] USE_DW, // log2(tam)-1 cambiar
-	output logic [size-1:0] DATA_OUT
+	output [size-1:0] DATA_OUT
 );
 
 	// Estados
 	enum logic [1:0] {vacio, otros, lleno} estado;
 
 	// Señales auxiliares contadores
-	wire countUSE_e, countUSE_ud, countUSE_tc;
+	logic countUSE_e, countUSE_ud, countUSE_tc;
 
-	wire countR_e, countR_reset;  //en R y W UpDown siempre va a valer 1 porque siempre aumentamos la cuenta
-	wire [$clog2(tam-1)-1:0] countR;
+	logic countR_e, countR_reset;  //en R y W UpDown siempre va a valer 1 porque siempre aumentamos la cuenta
+	logic [$clog2(tam-1)-1:0] countR;
 
-	wire countW_e, countW_reset;
-	wire [$clog2(tam-1)-1:0] countW;
+	logic countW_e, countW_reset;
+	logic [$clog2(tam-1)-1:0] countW;
 
 	//Señales auxiliares RAM
-	wire ramW_e;
-	wire ramR_e;
+	logic ramW_e;
+	logic ramR_e;
 
-	wire select;
+	logic select;
 
-	wire [size-1:0] data_out;
+	logic [size-1:0] data_out;
 
 
 	// CONTROL PATH
@@ -36,7 +36,8 @@ module FIFO32x8 #(parameter tam=32, parameter size=8)(
 		begin
 		if (!RESET_N)
 			estado <= vacio;
-		else if(!CLEAR_N)
+		else
+			if(!CLEAR_N)
 				estado <= vacio;
 			else
 				case (estado)
@@ -50,7 +51,7 @@ module FIFO32x8 #(parameter tam=32, parameter size=8)(
 
 				otros:
 					begin
-						if(WRITE && !READ && USE_DW == 31)
+						if(WRITE && !READ && USE_DW == 30)
 							estado <= lleno;
 						else if (!WRITE && READ && USE_DW == 1)
 							estado <= vacio;

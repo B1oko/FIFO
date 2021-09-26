@@ -24,36 +24,63 @@ module FIFO_Testbench ();
 
 	initial 
 		begin
-         CLOCK = 1'b0;
-			#2
+			CLOCK = 1'b0;
+			READ = 1'b0;
+			WRITE = 1'b0;
+			CLEAR_N = 1'b1;
+			
+			
+			#(2*T)
 			$display("Inicio del caso de test 1");
 			reset();
-			#2
-			escribe(8);
-			lee();
-			#2
+			#(2*T)
+			escribir(8'b00000000,33);
+			#(2*T)
+			leer(33);
+			#(2*T)
 			//assert(q==8) else $error("Error en FIFO");
 			reset();
+			$stop;
 		end
 
 	task reset;
 		begin
+			@(posedge CLOCK);
 			RESET_N = 1'b0;
-			#2
+			#(2*T)
+			@(posedge CLOCK);
 			RESET_N = 1'b1;
+			@(posedge CLOCK);
 		end
 	endtask
 	
-	task escribe(reps);
-		begin
-			WRITE = 1'b1;
-			int random = $random();
-			for(i=0;i<reps;i=i+1)
-				begin
-					DATA_IN = random;
-				end
-		end
+	task escribir(reg [7:0] valor, reps);
+		WRITE = 1'b1;
+		i = 0;
+		repeat (reps)
+			begin
+				i = i+1;
+				@(posedge CLOCK);
+				DATA_IN = valor+i;
+			end
+		#(T)
+		WRITE = 1'b0;
 	endtask
+	
+	task leer(reps);
+		READ = 1'b1;
+		#(T*2*(reps+1))
+		/*repeat (reps)
+			begin
+				@(posedge CLOCK);
+			end*/
+		READ = 1'b0;
+	endtask
+
+	task leer_escribir(reps);
+
+	endtask
+
 
 	always
 		begin

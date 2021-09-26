@@ -2,12 +2,15 @@
 
 module FIFO_Testbench ();
 	
+	localparam T = 20;
+
 	parameter tam = 32;
 	parameter size = 8;
 
 	integer i;
 
-	rand bit [size-1:0] data_random;
+	logic [size-1:0] data_random;
+	logic var_a = $random;
 
 	logic READ, WRITE, CLEAR_N, RESET_N, CLOCK;
 	logic [size-1:0] DATA_IN;
@@ -21,37 +24,62 @@ module FIFO_Testbench ();
 
 	initial 
 		begin
-         CLOCK = 1'b0;
-			#2
+			CLOCK = 1'b0;
+			READ = 1'b0;
+			WRITE = 1'b0;
+			CLEAR_N = 1'b1;
+			
+			
+			#(2*T)
 			$display("Inicio del caso de test 1");
 			reset();
-			#2
-			escribe(8);
-			lee();
-			#2
-			assert(q==8) else $error("Error en FIFO");
+			#(2*T)
+			escribir(8'b01011001,8);
+			#(2*T)
+			leer(3);
+			#(2*T)
+			//assert(q==8) else $error("Error en FIFO");
 			reset();
+			$stop;
 		end
 
 	task reset;
 		begin
+			@(posedge CLOCK);
 			RESET_N = 1'b0;
-			#2
+			#(2*T)
+			@(posedge CLOCK);
 			RESET_N = 1'b1;
+			@(posedge CLOCK);
 		end
 	endtask
 	
-	task escribe(reps);
-		begin
-			WRITE = 1'b1;
-			for(i=0;i<reps;i=i+1)
-				begin
-					if(data_random.randomize())
-						$display ("Numero random: %0d", data_random);
-				end
-
-		end
+	task escribir(reg [7:0] valor, reps);
+		WRITE = 1'b1;
+		repeat (reps)
+			begin
+				@(posedge CLOCK);
+				DATA_IN = valor;
+			end
+		@(posedge CLOCK);
+		WRITE = 1'b0;
 	endtask
+	
+	task leer(reps);
+		READ = 1'b1;
+		#(T*2*reps)
+		/*repeat (reps)
+			begin
+				@(posedge CLOCK);
+			end*/
+		@(posedge CLOCK);
+		READ = 1'b0;
+	endtask
+
+	task leer_escribir(reps);
+
+	endtask
+
 
 	always
 		begin
