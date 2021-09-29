@@ -4,7 +4,7 @@ module FIFO32x8 #(parameter tam=32, parameter size=8)(
 	input [size-1:0] DATA_IN,
 
 	output logic F_FULL_N, F_EMPTY_N,
-	output logic [$clog2(tam-1)-1:0] USE_DW, // log2(tam)-1 cambiar
+	output logic [5:0] USE_DW,// output logic [$clog2(tam+1):0] USE_DW, // log2(tam)-1 cambiar
 	output [size-1:0] DATA_OUT
 );
 
@@ -51,9 +51,9 @@ module FIFO32x8 #(parameter tam=32, parameter size=8)(
 
 				otros:
 					begin
-						if(WRITE && !READ && USE_DW == 30)
+						if(WRITE && !READ && USE_DW == tam)	
 							estado <= lleno;
-						else if (!WRITE && READ && USE_DW == 1)
+						else if (!WRITE && READ && USE_DW == 0)
 							estado <= vacio;
 						else
 							estado <= otros;
@@ -75,57 +75,60 @@ module FIFO32x8 #(parameter tam=32, parameter size=8)(
 		case(estado)
 			vacio:
 			begin
-				F_EMPTY_N <= 1'b0;
-				F_FULL_N <= 1'b1;
 				
 				countR_e = 1'b0;
 				countW_e = 1'b0;
-				countUSE_e = 1'b0;
-				countUSE_ud = 1'b0;
+				
 				ramR_e = 1'b0;
 				ramW_e = 1'b0;
 				select = 1'b0;
+				
+				countUSE_e = 1'b0;
+				countUSE_ud = 1'b0;
+				
+				F_EMPTY_N <= 1'b0;
+				F_FULL_N <= 1'b1;
 
 				// Resetear tdo
 
 				if (WRITE && READ)
 				begin
 					select = 1'b1;
-					end
+				end
 					
 				else if (WRITE && !READ)
 				begin
 					countW_e = 1'b1;
 
 					countR_e = 1'b0;
-					ramR_e = 1'b0;
 					
-					countUSE_e = 1'b1;
-					countUSE_ud = 1'b1;
-
 					ramW_e = 1'b1;
 					ramR_e = 1'b0;
+
+					countUSE_e = 1'b1;
+					countUSE_ud = 1'b1;
 				end   
 				else
 				begin
 					countR_e = 1'b0;
 					countW_e = 1'b0;
-					countUSE_e = 1'b0;
 					ramR_e = 1'b0;
 					ramW_e = 1'b0;
+					countUSE_e = 1'b0;
 				end
 			end
 
 			otros:
 			begin 
-			countR_e = 1'b0;
+				countR_e = 1'b0;
 				countW_e = 1'b0;
-				countUSE_e = 1'b0;
-				countUSE_ud = 1'b0;
+				
 				ramR_e = 1'b0;
 				ramW_e = 1'b0;
 				select = 1'b0;
 				
+				countUSE_e = 1'b0;
+				countUSE_ud = 1'b0;
 			
 				F_EMPTY_N <= 1'b1;
 				F_FULL_N <= 1'b1;
@@ -145,44 +148,46 @@ module FIFO32x8 #(parameter tam=32, parameter size=8)(
 				countW_e = 1'b1;
 				
 				countR_e = 1'b0;
+
+				ramR_e = 1'b0;
+				ramW_e = 1'b1;
 				
 				countUSE_e = 1'b1;
 				countUSE_ud = 1'b1;
-				
-				ramR_e = 1'b0;
-				ramW_e = 1'b1;
 				end
 				else if (!WRITE && READ)
 				begin
 				countR_e = 1'b1;
 
 				countW_e = 1'b0;
+
+				ramR_e = 1'b1;
+				ramW_e = 1'b0;
 				
 				countUSE_e = 1'b1;
 				countUSE_ud = 1'b0;
-				
-				ramR_e = 1'b1;
-				ramW_e = 1'b0;
 				end
 				else
 				begin
 					countR_e = 1'b0;
 					countW_e = 1'b0;
-					countUSE_e = 1'b0;
 					ramR_e = 1'b0;
 					ramW_e = 1'b0;
+					countUSE_e = 1'b0;
 				end
 			end
 			
 			lleno:
 			begin
-			countR_e = 1'b0;
+				countR_e = 1'b0;
 				countW_e = 1'b0;
-				countUSE_e = 1'b0;
-				countUSE_ud = 1'b0;
+				
 				ramR_e = 1'b0;
 				ramW_e = 1'b0;
 				select = 1'b0;
+				
+				countUSE_e = 1'b0;
+				countUSE_ud = 1'b0;
 				
 			
 				F_EMPTY_N <= 1'b1;
@@ -205,19 +210,19 @@ module FIFO32x8 #(parameter tam=32, parameter size=8)(
 
 				countW_e = 1'b0;
 
-				countUSE_e = 1'b1;
-				countUSE_ud = 1'b0;
-				
 				ramR_e = 1'b1;
 				ramW_e = 1'b0;
+				
+				countUSE_e = 1'b1;
+				countUSE_ud = 1'b0;
 				end
 				else 
 				begin
 					countR_e = 1'b0;
 					countW_e = 1'b0;
-					countUSE_e = 1'b0;
 					ramR_e = 1'b0;
 					ramW_e = 1'b0;
+					countUSE_e = 1'b0;
 				end
 				
 			end
@@ -227,7 +232,7 @@ module FIFO32x8 #(parameter tam=32, parameter size=8)(
 		assign DATA_OUT = (select)? DATA_IN:data_out;
   
   // CONTADORES
-    counterFIFO #(.fin_cuenta(tam)) contadorUSE (
+    counterFIFO #(.fin_cuenta(tam+2)) contadorUSE (
       .iCLK(CLOCK),
       .iRST_n(RESET_N),
       .iENABLE(countUSE_e),
