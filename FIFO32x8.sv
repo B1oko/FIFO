@@ -268,4 +268,15 @@ module FIFO32x8 #(parameter tam=32, parameter size=8)(
       .rdaddress(countR),
       .data_out(data_out));
 
+  // ASERCIONES
+	
+	compruebaFULL: assert property (@(negedge CLOCK && estado == lleno) disable iff(RESET_N===1'bx) (F_FULL_N == 0))
+	else $error("error_FULL");
+
+	compruebaEMPTY: assert property (@(negedge CLOCK && estado == vacio) disable iff(RESET_N===1'bx) (F_EMPTY_N == 0))
+	else $error("error_EMPTY");
+
+	writeFULL: assert property (@(negedge CLOCK && F_FULL_N == 0) (USE_DW == 31))
+	else $error("Se escribio cuando la fifo estaba llena");
+
 endmodule 

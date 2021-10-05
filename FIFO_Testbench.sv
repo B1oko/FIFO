@@ -25,16 +25,14 @@ module FIFO_Testbench ();
 	initial
 		begin
 			CLOCK = 1'b0;
+			CLEAR_N= 1'b1;
 			READ = 1'b0;
 			WRITE = 1'b0;
-			CLEAR_N = 1'b1;
 			
-			
-			#(T)
 			$display("Inicio del caso de test 1");
 			reset();
 			#(T)
-			leer_escribir(8'b10101010);
+			leer_escribir(8'b10101010);	
 			#(T)
 			escribir(8'b00000000,10);
 			#(T)
