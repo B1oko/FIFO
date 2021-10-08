@@ -236,7 +236,7 @@ module FIFO32x8 #(parameter tam=32, parameter size=8)(
   // CONTADORES
     counterFIFO #(.fin_cuenta(tam)) contadorUSE (
       .iCLK(CLOCK),
-      .iRST_n(RESET_N && CLEAR_N),
+      .iRST_n(RESET_N),
       .iENABLE(countUSE_e),
       .iUP_DOWN(countUSE_ud),
       .oCOUNT(USE_DW),
@@ -244,7 +244,7 @@ module FIFO32x8 #(parameter tam=32, parameter size=8)(
 
     counterFIFO #(.fin_cuenta(tam)) contadorR (
       .iCLK(CLOCK),
-      .iRST_n(RESET_N && CLEAR_N),
+      .iRST_n(RESET_N),
       .iENABLE(countR_e),
       .iUP_DOWN(1'b1),
       .oCOUNT(countR),
@@ -252,7 +252,7 @@ module FIFO32x8 #(parameter tam=32, parameter size=8)(
 
     counterFIFO #(.fin_cuenta(tam)) contadorW (
       .iCLK(CLOCK),
-      .iRST_n(RESET_N && CLEAR_N),
+      .iRST_n(RESET_N),
       .iENABLE(countW_e),
       .iUP_DOWN(1'b1),
       .oCOUNT(countW),
@@ -270,10 +270,7 @@ module FIFO32x8 #(parameter tam=32, parameter size=8)(
 
   // ASERCIONES
 	
-	compruebaFULL: assert property (@(posedge CLOCK) (estado == lleno) |-> !F_FULL_N) else $error("error_FULL");
-	compruebaEMPTY: assert property (@(posedge CLOCK) (estado == vacio) |-> !F_EMPTY_N) else $error("error_EMPTY");
-	
-	readEMPTY: assert property (@(posedge CLOCK) (estado == vacio) |-> !(!READ && WRITE)) else $warning("Se esta leyendo cuando la FIFO esta vacia");
-	writeFULL: assert property (@(posedge CLOCK) (estado == lleno) |-> !(READ && !WRITE)) else $warning("Se esta escribiendo cuando la FIFO esta llena");
+	compruebaFULL: assert property (@(posedge CLOCK) (estado == lleno && F_FULL_N == 0)) else (
+		$error("error_FULL"));
 
 endmodule 

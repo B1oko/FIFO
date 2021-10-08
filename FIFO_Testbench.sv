@@ -29,21 +29,46 @@ module FIFO_Testbench ();
 			READ = 1'b0;
 			WRITE = 1'b0;
 			
-			$display("Inicio del caso de test 1");
 			reset();
 			#(T)
-			leer_escribir(8'b10101010);	
-			#(T)
-			escribir(8'b00000000,10);
-			#(T)
-			leer_escribir(8'b10101010);
-			#(T)
-			escribir(8'b00000000,25);
-			#(T)
-			leer_escribir(8'b10101010);
+
+			$display("Inicio del caso de test 1: LLENAR LA FIFO");
+			escribir(8'b00000000,32);
 			#(T)
 			//assert(q==8) else $error("Error en FIFO");
-			reset();
+			
+			$display("Inicio del caso de test 2: ESCRIBIR CON FIFO LLENA");
+			escribir(8'b00000000,2);
+			#(T)
+
+			$display("Inicio del caso de test 3: LECTURA-ESCRITURA CON FIFO LLENA");
+			leer_escribir(8'b10101010);
+			#(T)
+			
+			$display("Inicio del caso de test 4: VACIAR LA FIFO");
+			leer(32);
+			#(T)
+
+			$display("Inicio del caso de test 5: LEER CON FIFO VACIA");
+			leer(2);
+			#(T)
+
+			$display("Inicio del caso de test 6: LECTURA-ESCRITURA CON FIFO VACIA");
+			leer_escribir(8'b10111011);
+			#(T)
+			
+			$display("Inicio del caso de test 7: LECTURA-ESCRITURA CON FIFO A MITAD");
+			escribir(8'b10000000,16);
+			#(T)
+			leer_escribir(8'b10101010);
+			#(T)
+
+			$display("Inicio del caso de test 8: PRUEBA DE CLEAR");
+			clear();
+			#(T)
+			escribir(8'b00000000,4);
+			#(T)
+
 			$stop;
 		end
 
@@ -54,6 +79,17 @@ module FIFO_Testbench ();
 			#(T)
 			@(posedge CLOCK);
 			RESET_N = 1'b1;
+			@(posedge CLOCK);
+		end
+	endtask
+
+	task clear;
+		begin
+			@(posedge CLOCK);
+			CLEAR_N = 1'b0;
+			#(T)
+			@(posedge CLOCK);
+			CLEAR_N = 1'b1;
 			@(posedge CLOCK);
 		end
 	endtask
@@ -74,10 +110,6 @@ module FIFO_Testbench ();
 	task leer(int reps);
 		READ = 1'b1;
 		#(T*(reps))
-		/*repeat (reps)
-			begin
-				@(posedge CLOCK);
-			end*/
 		READ = 1'b0;
 	endtask
 
@@ -99,4 +131,4 @@ module FIFO_Testbench ();
 		begin
 			#(T/2) CLOCK <= ~CLOCK;
 		end
-endmodule 
+endmodule
