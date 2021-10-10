@@ -273,7 +273,7 @@ module FIFO32x8 #(parameter tam=32, parameter size=8)(
 	compruebaFULL: assert property (@(posedge CLOCK) (estado == lleno) |-> !F_FULL_N) else $error("error_FULL");
 	compruebaEMPTY: assert property (@(posedge CLOCK) (estado == vacio) |-> !F_EMPTY_N) else $error("error_EMPTY");
 	
-	readEMPTY: assert property (@(posedge CLOCK) (estado == vacio) |-> !(!READ && WRITE)) else $warning("Se esta leyendo cuando la FIFO esta vacia");
-	writeFULL: assert property (@(posedge CLOCK) (estado == lleno) |-> !(READ && !WRITE)) else $warning("Se esta escribiendo cuando la FIFO esta llena");
+	readEMPTY: assert property (@(posedge CLOCK) (estado == vacio) |-> (!READ || WRITE)) else $warning("Se esta leyendo cuando la FIFO esta vacia");
+	writeFULL: assert property (@(posedge CLOCK) (estado == lleno) |-> (READ || !WRITE)) else $warning("Se esta escribiendo cuando la FIFO esta llena");
 
 endmodule 
